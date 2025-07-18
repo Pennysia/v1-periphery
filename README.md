@@ -4,7 +4,7 @@
 [![Foundry](https://img.shields.io/badge/Built%20with-Foundry-red.svg)](https://getfoundry.sh/)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](#-license)
 
-> **The official periphery package for the [Pennysia AMM v1-core](../v1-core/README.md): a robust, modular router and utility library for advanced swaps, liquidity management, and seamless integration with the core protocol.**
+> **The official periphery package for the [Pennysia AMM v1-core](https://github.com/Pennysia/v1-core): a robust, modular router and utility library for advanced swaps, liquidity management, and seamless integration with the core protocol.**
 
 ---
 
@@ -28,7 +28,7 @@
 
 ## Project Introduction
 
-**Pennysia AMM V1-Periphery** is the user-facing layer of the Pennysia protocol, providing a universal Router contract, utility libraries, and interfaces for seamless integration with the [v1-core](../v1-core/README.md) AMM. It enables advanced swaps, liquidity management, and payment flows, while enforcing security and usability best practices. This package is ideal for frontend developers, integrators, and anyone building on top of the Pennysia AMM.
+**Pennysia AMM V1-Periphery** is the user-facing layer of the Pennysia protocol, providing a universal Router contract, utility libraries, and interfaces for seamless integration with the [Pennysia v1-core](https://github.com/Pennysia/v1-core) AMM. **Note:** v1-core and v1-periphery are maintained in separate GitHub repositories for modularity and clarity. This package is ideal for frontend developers, integrators, and anyone building on top of the Pennysia AMM.
 
 ---
 
@@ -73,7 +73,9 @@ src/
 
 ## 🤝 How It Integrates with v1-core
 
-Pennysia's **v1-periphery** is designed to work seamlessly with the **[v1-core](../v1-core/README.md)** package, which contains the core AMM logic in `Market.sol` and its supporting libraries and interfaces.
+Pennysia's **v1-periphery** is designed to work seamlessly with the [**Pennysia v1-core**](https://github.com/Pennysia/v1-core) package, which contains the core AMM logic in `Market.sol` and its supporting libraries and interfaces. **These are separate repositories:**
+- v1-core: [https://github.com/Pennysia/v1-core](https://github.com/Pennysia/v1-core)
+- v1-core README: [https://github.com/Pennysia/v1-core/blob/main/README.md](https://github.com/Pennysia/v1-core/blob/main/README.md)
 
 - **Router as the Gateway:**
   - The `Router` contract in v1-periphery acts as the main entry point for users and frontends.
@@ -279,7 +281,8 @@ We welcome contributions! Please:
 
 ## Community & Contact
 
-- [Pennysia v1-core](../v1-core/README.md)
+- [Pennysia v1-core GitHub](https://github.com/Pennysia/v1-core)
+- [Pennysia v1-core README](https://github.com/Pennysia/v1-core/blob/main/README.md)
 - [Foundry Documentation](https://book.getfoundry.sh/)
 - For commercial licensing or support, contact: [dev@pennysia.com](mailto:dev@pennysia.com)
 
