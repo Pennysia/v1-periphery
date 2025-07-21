@@ -4,6 +4,8 @@ pragma solidity 0.8.28;
 interface IRouter {
     /// @dev The slippage check has failed.
     error slippage();
+    /// @dev check for address validation
+    error forbidden();
 
     /// @notice Quotes the amount of LP tokens to be minted for given amounts
     function quoteLiquidity(

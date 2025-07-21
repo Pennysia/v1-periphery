@@ -28,21 +28,33 @@ contract RouterLibraryTestHelper {
     function onlySorted(address a, address b) external pure {
         RouterLibrary.onlySorted(a, b);
     }
-    function quoteLiquidity(address market_, address a, address b, uint256 l0, uint256 s0, uint256 l1, uint256 s1) external view {
+
+    function quoteLiquidity(address market_, address a, address b, uint256 l0, uint256 s0, uint256 l1, uint256 s1)
+        external
+        view
+    {
         RouterLibrary.quoteLiquidity(market_, a, b, l0, s0, l1, s1);
     }
-    function quoteReserve(address market_, address a, address b, uint256 l0, uint256 s0, uint256 l1, uint256 s1) external view {
+
+    function quoteReserve(address market_, address a, address b, uint256 l0, uint256 s0, uint256 l1, uint256 s1)
+        external
+        view
+    {
         RouterLibrary.quoteReserve(market_, a, b, l0, s0, l1, s1);
     }
+
     function getAmountsOut(address market_, uint256 amountIn, address[] memory path) external view {
         RouterLibrary.getAmountsOut(market_, amountIn, path);
     }
+
     function getAmountsIn(address market_, uint256 amountOut, address[] memory path) external view {
         RouterLibrary.getAmountsIn(market_, amountOut, path);
     }
+
     function getDirectionalBalances(address market_, address a, address b) external view {
         RouterLibrary.getDirectionalBalances(market_, a, b);
     }
+
     function getLiquiditySupply(address market_, address a, address b) external view {
         RouterLibrary.getLiquiditySupply(market_, a, b);
     }
@@ -88,18 +100,22 @@ contract RouterLibraryTest is Test {
         vm.expectRevert();
         helper.quoteLiquidity(market, tokenA, tokenB, 1000, 1000, 1000, 1000);
     }
+
     function testQuoteLiquidityInsufficientInitial() public {
         vm.expectRevert();
         helper.quoteLiquidity(market, tokenA, tokenB, 999, 1000, 1000, 1000);
     }
+
     function testQuoteLiquidityNormal() public {
         vm.expectRevert();
         helper.quoteLiquidity(market, tokenA, tokenB, 2000, 2000, 2000, 2000);
     }
+
     function testQuoteLiquidityUnsortedTokens() public {
         vm.expectRevert(RouterLibrary.tokensNotSorted.selector);
         helper.quoteLiquidity(market, tokenB, tokenA, 1000, 1000, 1000, 1000);
     }
+
     function testQuoteLiquidityIdenticalTokens() public {
         vm.expectRevert(RouterLibrary.tokensNotSorted.selector);
         helper.quoteLiquidity(market, tokenA, tokenA, 1000, 1000, 1000, 1000);
@@ -110,12 +126,14 @@ contract RouterLibraryTest is Test {
         vm.expectRevert();
         helper.quoteReserve(market, tokenA, tokenB, 10, 20, 30, 40);
     }
+
     function testQuoteReserveZeroReserves() public {
         AlwaysZeroReserveMarket zeroMock = new AlwaysZeroReserveMarket();
         vm.etch(market, address(zeroMock).code);
         vm.expectRevert();
         helper.quoteReserve(market, tokenA, tokenB, 10, 20, 30, 40);
     }
+
     function testQuoteReserveUnsortedTokens() public {
         vm.expectRevert(RouterLibrary.tokensNotSorted.selector);
         helper.quoteReserve(market, tokenB, tokenA, 10, 20, 30, 40);
@@ -149,6 +167,7 @@ contract RouterLibraryTest is Test {
         }
         assertGt(amounts[1], 0);
     }
+
     function testGetAmountsInSingleHop() public {
         MultiHopMarketMock multiMock = new MultiHopMarketMock();
         uint128[4] memory reserves = [uint128(2_000_000), uint128(2_000_000), uint128(3_000_000), uint128(3_000_000)];
@@ -164,7 +183,7 @@ contract RouterLibraryTest is Test {
         emit log_named_uint("mock reserve1Long", r1l);
         emit log_named_uint("mock reserve1Short", r1s);
         uint256[] memory amounts = new uint256[](path.length);
-        amounts[path.length - 1] = 1;
+        amounts[path.length - 1] = 1000; // Use realistic output amount
         for (uint256 i = path.length - 1; i > 0; i--) {
             (uint256 reserveIn, uint256 reserveOut) = RouterLibrary.getReserves(mockMarketAddr, path[i - 1], path[i]);
             emit log_named_uint("hop", i - 1);
@@ -175,20 +194,23 @@ contract RouterLibraryTest is Test {
             emit log_named_uint("amountIn", amounts[i - 1]);
         }
         assertGt(amounts[0], 0);
-        assertEq(amounts[1], 1);
+        assertEq(amounts[1], 1000);
     }
+
     function testGetAmountsOutInvalidPath() public {
         address[] memory path = new address[](1);
         path[0] = tokenA;
         vm.expectRevert(RouterLibrary.invalidPath.selector);
         helper.getAmountsOut(market, 1000, path);
     }
+
     function testGetAmountsInInvalidPath() public {
         address[] memory path = new address[](1);
         path[0] = tokenA;
         vm.expectRevert(RouterLibrary.invalidPath.selector);
         helper.getAmountsIn(market, 1000, path);
     }
+
     function testGetAmountsOutMultiHop() public {
         MultiHopMarketMock multiMock = new MultiHopMarketMock();
         address[] memory path = new address[](3);
@@ -197,8 +219,12 @@ contract RouterLibraryTest is Test {
         path[2] = address(0xE);
         (address t0, address t1) = RouterLibrary.sortTokens(path[0], path[1]);
         (address t1b, address t2) = RouterLibrary.sortTokens(path[1], path[2]);
-        multiMock.setReservesForPair(t0, t1, [uint128(1_000_000), uint128(1_000_000), uint128(2_000_000), uint128(2_000_000)]);
-        multiMock.setReservesForPair(t1b, t2, [uint128(5_000_000), uint128(5_000_000), uint128(10_000_000), uint128(10_000_000)]);
+        multiMock.setReservesForPair(
+            t0, t1, [uint128(1_000_000), uint128(1_000_000), uint128(2_000_000), uint128(2_000_000)]
+        );
+        multiMock.setReservesForPair(
+            t1b, t2, [uint128(5_000_000), uint128(5_000_000), uint128(10_000_000), uint128(10_000_000)]
+        );
         address mockMarketAddr = address(multiMock);
         uint256[] memory amounts = new uint256[](path.length);
         amounts[0] = 1000;
@@ -216,6 +242,7 @@ contract RouterLibraryTest is Test {
         assertLt(amounts[1], 5_000_000 + 5_000_000);
         assertLt(amounts[2], 10_000_000 + 10_000_000);
     }
+
     function testGetAmountsInMultiHop() public {
         MultiHopMarketMock multiMock = new MultiHopMarketMock();
         address[] memory path = new address[](3);
@@ -224,8 +251,12 @@ contract RouterLibraryTest is Test {
         path[2] = address(0xE);
         (address t0, address t1) = RouterLibrary.sortTokens(path[0], path[1]);
         (address t1b, address t2) = RouterLibrary.sortTokens(path[1], path[2]);
-        multiMock.setReservesForPair(t0, t1, [uint128(10_000_000), uint128(10_000_000), uint128(20_000_000), uint128(20_000_000)]);
-        multiMock.setReservesForPair(t1b, t2, [uint128(1_000_000), uint128(1_000_000), uint128(2_000_000), uint128(2_000_000)]);
+        multiMock.setReservesForPair(
+            t0, t1, [uint128(10_000_000), uint128(10_000_000), uint128(20_000_000), uint128(20_000_000)]
+        );
+        multiMock.setReservesForPair(
+            t1b, t2, [uint128(1_000_000), uint128(1_000_000), uint128(2_000_000), uint128(2_000_000)]
+        );
         address mockMarketAddr = address(multiMock);
         uint256[] memory amounts = new uint256[](path.length);
         amounts[path.length - 1] = 1000;
@@ -244,13 +275,16 @@ contract RouterLibraryTest is Test {
         assertLt(amounts[0], 10_000_000 + 10_000_000);
         assertLt(amounts[1], 1_000_000 + 1_000_000);
     }
+
     function testGetAmountsOutRealistic() public {
         MultiHopMarketMock multiMock = new MultiHopMarketMock();
         address[] memory path = new address[](2);
         path[0] = tokenA;
         path[1] = tokenB;
         (address t0, address t1) = RouterLibrary.sortTokens(path[0], path[1]);
-        multiMock.setReservesForPair(t0, t1, [uint128(1_000_000), uint128(1_000_000), uint128(2_000_000), uint128(2_000_000)]);
+        multiMock.setReservesForPair(
+            t0, t1, [uint128(1_000_000), uint128(1_000_000), uint128(2_000_000), uint128(2_000_000)]
+        );
         address mockMarketAddr = address(multiMock);
         uint256[] memory amounts = new uint256[](path.length);
         amounts[0] = 1000;
@@ -266,13 +300,16 @@ contract RouterLibraryTest is Test {
         assertGt(amounts[1], 0);
         assertLt(amounts[1], 2_000_000 + 2_000_000);
     }
+
     function testGetAmountsInRealistic() public {
         MultiHopMarketMock multiMock = new MultiHopMarketMock();
         address[] memory path = new address[](2);
         path[0] = tokenA;
         path[1] = tokenB;
         (address t0, address t1) = RouterLibrary.sortTokens(path[0], path[1]);
-        multiMock.setReservesForPair(t0, t1, [uint128(2_000_000), uint128(2_000_000), uint128(3_000_000), uint128(3_000_000)]);
+        multiMock.setReservesForPair(
+            t0, t1, [uint128(2_000_000), uint128(2_000_000), uint128(3_000_000), uint128(3_000_000)]
+        );
         address mockMarketAddr = address(multiMock);
         uint256[] memory amounts = new uint256[](path.length);
         amounts[path.length - 1] = 1000;
@@ -289,6 +326,7 @@ contract RouterLibraryTest is Test {
         assertEq(amounts[1], 1000);
         assertLt(amounts[0], 2_000_000 + 2_000_000);
     }
+
     function testGetAmountsOutPairZeroBalance() public {
         AlwaysZeroReserveMarket zeroMock = new AlwaysZeroReserveMarket();
         vm.etch(market, address(zeroMock).code);
@@ -298,6 +336,7 @@ contract RouterLibraryTest is Test {
         vm.expectRevert();
         helper.getAmountsOut(market, 1, path);
     }
+
     function testGetAmountsInPairZeroBalance() public {
         AlwaysZeroReserveMarket zeroMock = new AlwaysZeroReserveMarket();
         vm.etch(market, address(zeroMock).code);
@@ -308,6 +347,7 @@ contract RouterLibraryTest is Test {
         helper.getAmountsIn(market, 1, path);
     }
     // --- getDirectionalBalances/getLiquiditySupply tests ---
+
     function testGetDirectionalBalances() public {
         address marketAddr = address(mockMarket);
         vm.etch(market, marketAddr.code);
@@ -318,12 +358,14 @@ contract RouterLibraryTest is Test {
         assertEq(reserve1Long, 300);
         assertEq(reserve1Short, 400);
     }
+
     function testGetDirectionalBalancesUnsorted() public {
         address marketAddr = address(mockMarket);
         vm.etch(market, marketAddr.code);
         vm.expectRevert(RouterLibrary.tokensNotSorted.selector);
         helper.getDirectionalBalances(market, tokenB, tokenA);
     }
+
     function testGetLiquiditySupply() public {
         address liquidityAddr = address(mockLiquidity);
         vm.etch(market, liquidityAddr.code);
@@ -334,6 +376,7 @@ contract RouterLibraryTest is Test {
         assertEq(longY, 4000);
         assertEq(shortY, 5000);
     }
+
     function testGetLiquiditySupplyUnsorted() public {
         address liquidityAddr = address(mockLiquidity);
         vm.etch(market, liquidityAddr.code);
@@ -364,4 +407,4 @@ contract MultiHopMarketMock {
         uint128[4] memory r = reservesMap[key];
         return (r[0], r[1], r[2], r[3]);
     }
-} 
+}

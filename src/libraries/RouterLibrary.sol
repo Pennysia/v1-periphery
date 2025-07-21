@@ -7,7 +7,6 @@ import {Math} from "./Math.sol";
 
 library RouterLibrary {
     error identicalTokens();
-    error amountInZero();
     error pairZeroBalance();
     error invalidPath();
     error tokensNotSorted();
@@ -47,12 +46,15 @@ library RouterLibrary {
         pure
         returns (uint256 amountOut)
     {
-        require(amountIn > 0, amountInZero());
+        require(amountIn > 0, insufficientAmounts());
         require(reserveIn > 0 && reserveOut > 0, pairZeroBalance());
-        uint256 amountInWithFee = amountIn * 997;
-        uint256 numerator = amountInWithFee * reserveOut;
-        uint256 denominator = (reserveIn * 1000) + amountInWithFee;
-        amountOut = numerator / denominator;
+        // Calculate amountOut using constant product formula: x * y = k
+        uint256 newReserveIn = reserveIn + amountIn;
+        uint256 newReserveOut = (reserveOut * reserveIn) / newReserveIn;
+        amountOut = reserveOut - newReserveOut;
+        // Deduct 0.3% fee from amountOut (matching Market.sol logic)
+        uint256 feeAmountOut = (amountOut * 3 + 999) / 1000; // divUp equivalent
+        amountOut -= feeAmountOut;
     }
 
     function getAmountIn(uint256 amountOut, uint256 reserveIn, uint256 reserveOut)
@@ -60,11 +62,12 @@ library RouterLibrary {
         pure
         returns (uint256 amountIn)
     {
-        require(amountOut > 0, amountInZero());
+        require(amountOut > 0, insufficientAmounts());
         require(reserveIn > 0 && reserveOut > 0, pairZeroBalance());
-        uint256 numerator = reserveIn * amountOut * 1000;
-        uint256 denominator = (reserveOut - amountOut) * 997;
-        amountIn = (numerator / denominator) + 1;
+        uint256 amountOutWithFee = ((amountOut * 1003 + 999) / 1000); // divUp equivalent
+        uint256 newReserveOut = reserveOut - amountOutWithFee;
+        uint256 newReserveIn = (reserveIn * reserveOut) / newReserveOut;
+        amountIn = newReserveIn - reserveIn;
     }
 
     // performs chained getAmountOut calculations on any number of pairs
@@ -136,14 +139,9 @@ library RouterLibrary {
         uint256 totalShortY;
 
         (uint256 reserve0Long, uint256 reserve0Short, uint256 reserve1Long, uint256 reserve1Short) =
-            getLiquiditySupply(market, token0, token1);
+            getDirectionalBalances(market, token0, token1);
 
         if (reserve0Long == 0) {
-            totalLongX = 1000000;
-            totalShortX = 1000000;
-            totalLongY = 1000000;
-            totalShortY = 1000000;
-
             require(
                 amountLong0 >= 1000 && amountShort0 >= 1000 && amountLong1 >= 1000 && amountShort1 >= 1000,
                 insufficientAmounts()
@@ -158,8 +156,13 @@ library RouterLibrary {
             reserve0Short = 1000;
             reserve1Long = 1000;
             reserve1Short = 1000;
+
+            totalLongX = 1000000;
+            totalShortX = 1000000;
+            totalLongY = 1000000;
+            totalShortY = 1000000;
         } else {
-            (reserve0Long, reserve0Short, reserve1Long, reserve1Short) = getDirectionalBalances(market, token0, token1);
+            (totalLongX, totalShortX, totalLongY, totalShortY) = getLiquiditySupply(market, token0, token1);
         }
 
         longX = Math.fullMulDiv(amountLong0, totalLongX, reserve0Long);
@@ -184,9 +187,15 @@ library RouterLibrary {
             getDirectionalBalances(market, token0, token1);
         if (reserve0Long == 0) revert pairZeroBalance();
 
-        amountLong0 = Math.fullMulDiv(longX * 997, reserve0Long, totalLongX * 1000);
-        amountShort0 = Math.fullMulDiv(shortX * 997, reserve0Short, totalShortX * 1000);
-        amountLong1 = Math.fullMulDiv(longY * 997, reserve1Long, totalLongY * 1000);
-        amountShort1 = Math.fullMulDiv(shortY * 997, reserve1Short, totalShortY * 1000);
+        // Calculate fees from LP tokens
+        uint256 feeLongX = (longX * 3 + 999) / 1000; // divUp equivalent for 0.3% fee
+        uint256 feeShortX = (shortX * 3 + 999) / 1000;
+        uint256 feeLongY = (longY * 3 + 999) / 1000;
+        uint256 feeShortY = (shortY * 3 + 999) / 1000;
+
+        amountLong0 = Math.fullMulDiv(longX - feeLongX, reserve0Long, totalLongX);
+        amountShort0 = Math.fullMulDiv(shortX - feeShortX, reserve0Short, totalShortX);
+        amountLong1 = Math.fullMulDiv(longY - feeLongY, reserve1Long, totalLongY);
+        amountShort1 = Math.fullMulDiv(shortY - feeShortY, reserve1Short, totalShortY);
     }
 }

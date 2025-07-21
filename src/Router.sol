@@ -6,7 +6,6 @@ import {Deadline} from "./abstract/Deadline.sol";
 import {ILiquidity} from "./interfaces/ILiquidity.sol";
 import {RouterLibrary} from "./libraries/RouterLibrary.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
-import {ILiquidity} from "./interfaces/ILiquidity.sol";
 import {TransferHelper} from "./libraries/TransferHelper.sol";
 import {IRouter} from "./interfaces/IRouter.sol";
 import {IPayment} from "./interfaces/IPayment.sol";
@@ -53,7 +52,7 @@ contract Router is Deadline, IRouter, IPayment {
         public
         pure
         override
-        returns (uint256)
+        returns (uint256 amountIn)
     {
         return RouterLibrary.getAmountIn(amountOut, reserveIn, reserveOut);
     }
@@ -75,6 +74,8 @@ contract Router is Deadline, IRouter, IPayment {
     {
         return RouterLibrary.getAmountsIn(market, amountOut, path);
     }
+
+    // --------- Sweep Leftover Native Token ---------
 
     function sweepNative(address to) public override {
         uint256 balance = address(this).balance;
@@ -153,6 +154,7 @@ contract Router is Deadline, IRouter, IPayment {
         payable
         override
     {
+        require(msg.sender == market, forbidden());
         for (uint256 i = 0; i < tokens.length; i++) {
             if (tokens[i] == address(0)) {
                 TransferHelper.safeTransfer(address(0), to, paybackAmounts[i]);
@@ -170,6 +172,7 @@ contract Router is Deadline, IRouter, IPayment {
         uint128 amountForLongY,
         uint128 amountForShortY
     ) external override {
+        require(msg.sender == market, forbidden());
         ILiquidity(market).transferFrom(
             to, address(0), poolId, amountForLongX, amountForShortX, amountForLongY, amountForShortY
         );
