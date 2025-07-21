@@ -3,6 +3,7 @@
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.28-blue.svg)](https://docs.soliditylang.org/)
 [![Foundry](https://img.shields.io/badge/Built%20with-Foundry-red.svg)](https://getfoundry.sh/)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](#-license)
+[![CI](https://github.com/Pennysia/v1-periphery/actions/workflows/test.yml/badge.svg)](https://github.com/Pennysia/v1-periphery/actions/workflows/test.yml)
 
 > **The official periphery package for the [Pennysia AMM v1-core](https://github.com/Pennysia/v1-core): a robust, modular router and utility library for advanced swaps, liquidity management, and seamless integration with the core protocol.**
 
