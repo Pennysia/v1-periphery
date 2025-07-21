@@ -3,14 +3,17 @@
 pragma solidity 0.8.28;
 
 import {Deadline} from "./abstract/Deadline.sol";
-import {ILiquidity} from "./interfaces/ILiquidity.sol";
-import {RouterLibrary} from "./libraries/RouterLibrary.sol";
-import {IMarket} from "./interfaces/IMarket.sol";
+import {Multicall} from "./abstract/Multicall.sol";
+
 import {TransferHelper} from "./libraries/TransferHelper.sol";
+import {RouterLibrary} from "./libraries/RouterLibrary.sol";
+
+import {ILiquidity} from "./interfaces/ILiquidity.sol";
+import {IMarket} from "./interfaces/IMarket.sol";
 import {IRouter} from "./interfaces/IRouter.sol";
 import {IPayment} from "./interfaces/IPayment.sol";
 
-contract Router is Deadline, IRouter, IPayment {
+contract Router is Deadline, Multicall, IRouter, IPayment {
     address public immutable market;
 
     constructor(address _market) {
