@@ -160,7 +160,7 @@ contract Router is Deadline, Multicall, IRouter, IPayment {
         require(msg.sender == market, forbidden());
         for (uint256 i = 0; i < tokens.length; i++) {
             if (tokens[i] == address(0)) {
-                TransferHelper.safeTransfer(address(0), to, paybackAmounts[i]);
+                TransferHelper.safeTransfer(address(0), market, paybackAmounts[i]);
             } else {
                 TransferHelper.safeTransferFrom(tokens[i], to, market, paybackAmounts[i]);
             }
