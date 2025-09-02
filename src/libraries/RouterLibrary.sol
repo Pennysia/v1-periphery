@@ -108,7 +108,8 @@ library RouterLibrary {
         returns (uint256 reserve0Long, uint256 reserve0Short, uint256 reserve1Long, uint256 reserve1Short)
     {
         onlySorted(token0, token1);
-        (reserve0Long, reserve0Short, reserve1Long, reserve1Short) = IMarket(market).getReserves(token0, token1);
+        uint256 pairId = computePairId(token0, token1);
+        (reserve0Long, reserve0Short, reserve1Long, reserve1Short) = IMarket(market).getReserves(pairId);
     }
 
     ///@dev token0 and token1 must be sorted
