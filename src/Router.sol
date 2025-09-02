@@ -138,6 +138,26 @@ contract Router is Deadline, Multicall, IRouter, IPayment {
         sweepNative(to);
     }
 
+    function liquiditySwap(
+        address token0,
+        address token1,
+        bool longToShort0,
+        uint256 liquidity0,
+        bool longToShort1,
+        uint256 liquidity1,
+        uint256 liquidity0OutMinimum,
+        uint256 liquidity1OutMinimum,
+        address to,
+        uint256 deadline
+    ) external payable override ensure(deadline) returns (uint256 liquidityOut0, uint256 liquidityOut1) {
+        (, liquidityOut0, liquidityOut1) =
+            IMarket(market).lpSwap(msg.sender, token0, token1, longToShort0, liquidity0, longToShort1, liquidity1);
+
+        require(liquidityOut0 >= liquidity0OutMinimum, slippage());
+        require(liquidityOut1 >= liquidity1OutMinimum, slippage());
+        sweepNative(to);
+    }
+
     // --------- Swap Function ---------
     function swap(uint256 amountIn, uint256 amountOutMinimum, address[] calldata path, address to, uint256 deadline)
         external

@@ -80,6 +80,20 @@ interface IRouter {
         uint256 deadline
     ) external payable returns (uint256 amount0, uint256 amount1);
 
+    // @notice Performs liquidity swap.
+    function liquiditySwap(
+        address token0,
+        address token1,
+        bool longToShort0,
+        uint256 liquidity0,
+        bool longToShort1,
+        uint256 liquidity1,
+        uint256 liquidity0OutMinimum,
+        uint256 liquidity1OutMinimum,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256 liquidityOut0, uint256 liquidityOut1);
+
     /// @notice Swaps tokens along a path
     function swap(uint256 amountIn, uint256 amountOutMinimum, address[] calldata path, address to, uint256 deadline)
         external
