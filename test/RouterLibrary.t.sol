@@ -17,7 +17,7 @@ contract MockLiquidity {
 
 // Minimal mock for IMarket
 contract MockMarket {
-    function getReserves(address, address) external pure returns (uint128, uint128, uint128, uint128) {
+    function getReserves(uint256) external pure returns (uint128, uint128, uint128, uint128) {
         // Return fixed reserves for test
         return (100, 200, 300, 400);
     }
@@ -387,7 +387,7 @@ contract RouterLibraryTest is Test {
 
 // Minimal mock for zero reserves (use AlwaysZeroReserveMarket for all zero-reserve tests)
 contract AlwaysZeroReserveMarket {
-    function getReserves(address, address) external pure returns (uint128, uint128, uint128, uint128) {
+    function getReserves(uint256) external pure returns (uint128, uint128, uint128, uint128) {
         return (0, 0, 0, 0);
     }
 }
@@ -405,6 +405,12 @@ contract MultiHopMarketMock {
     function getReserves(address tokenA, address tokenB) external view returns (uint128, uint128, uint128, uint128) {
         bytes32 key = keccak256(abi.encodePacked(tokenA, tokenB));
         uint128[4] memory r = reservesMap[key];
+        return (r[0], r[1], r[2], r[3]);
+    }
+
+    // PairId-based variant used by RouterLibrary via IMarket
+    function getReserves(uint256 pairId) external view returns (uint128, uint128, uint128, uint128) {
+        uint128[4] memory r = reservesMap[bytes32(pairId)];
         return (r[0], r[1], r[2], r[3]);
     }
 }
