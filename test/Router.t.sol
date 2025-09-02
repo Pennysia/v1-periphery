@@ -176,11 +176,11 @@ contract MarketMock is IMarket, ILiquidity {
         return 0;
     }
 
-    function getPairId(address, address) external pure override returns (uint256) {
-        return 0;
+    function getPairId(address token0, address token1) external pure override returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(token0, token1)));
     }
 
-    function getReserves(address, address) external pure override returns (uint128, uint128, uint128, uint128) {
+    function getReserves(uint256) external pure override returns (uint128, uint128, uint128, uint128) {
         return (1000, 2000, 3000, 4000); // Return non-zero reserves for RouterLibrary tests
     }
 
@@ -198,6 +198,15 @@ contract MarketMock is IMarket, ILiquidity {
 
     function setOwner(address newOwner) external override {
         _owner = newOwner;
+    }
+
+    function lpSwap(address, address, address, bool, uint256, bool, uint256)
+        external
+        pure
+        override
+        returns (uint256, uint256, uint256)
+    {
+        return (0, 0, 0);
     }
 
     // ILiquidity interface implementations
