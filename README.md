@@ -133,18 +133,13 @@ router.removeLiquidity(
 ## 🚦 Main Components
 
 ### Router.sol
-- **addLiquidity/removeLiquidity**:  
-  Add or remove liquidity to any pair, with slippage and deadline protection.
-- **swap**:  
-  Multi-hop swaps with minimum output and deadline checks.
-- **quoteLiquidity/quoteReserve**:  
-  Get LP token or reserve amounts for given inputs.
-- **getAmountsIn/getAmountsOut**:  
-  Path-based quoting for multi-hop swaps.
-- **sweepNative**:  
-  Withdraws any stuck ETH to a specified address.
-- **requestToken/requestLiquidity**:  
-  Payment callbacks for core contract integration.
+- **addLiquidity/removeLiquidity**: add/remove liquidity with slippage + deadline.
+- **swap**: multi-hop swaps with min-out and deadline.
+- **liquiditySwap**: rebalance LP between long/short within a pair with min-outs + deadline.
+- **quoteLiquidity/quoteReserve**: compute LP tokens or reserves for given inputs.
+- **getAmountsIn/getAmountsOut**: path-based quoting utilities.
+- **sweepNative**: withdraw stuck ETH to a recipient.
+- **requestToken/requestLiquidity**: payment callbacks for core integration.
 
 ### Libraries
 - **RouterLibrary**:  
@@ -202,6 +197,20 @@ router.removeLiquidity(
     msg.sender,
     block.timestamp + 1 hours
 );
+
+// Rebalance LP positions (long/short) within a pair
+(uint256 out0, uint256 out1) = router.liquiditySwap(
+    token0,
+    token1,
+    /* longToShort0 */ true,
+    /* liquidity0    */ 500_000,
+    /* longToShort1 */ false,
+    /* liquidity1    */ 0,
+    /* minOut0       */ 490_000,
+    /* minOut1       */ 0,
+    msg.sender,
+    block.timestamp + 1 hours
+);
 ```
 
 ---
@@ -214,8 +223,8 @@ curl -L https://foundry.paradigm.xyz | bash
 foundryup
 
 # Clone the repo and install dependencies
-git clone https://github.com/your-org/pennysia-v1-periphery.git
-cd pennysia-v1-periphery
+git clone https://github.com/Pennysia/v1-periphery.git
+cd v1-periphery
 forge install
 
 # Build and test
