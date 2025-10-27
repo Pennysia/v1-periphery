@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /// @notice Safe ETH and ERC20 transfer library that gracefully handles missing return values.
 /// @author Solady (https://github.com/vectorized/solady/blob/main/src/utils/SafeTransferLib.sol)
-pragma solidity 0.8.28;
+pragma solidity 0.8.30;
 
 library TransferHelper {
     /// @dev The ETH transfer has failed.
@@ -13,8 +13,8 @@ library TransferHelper {
     /// @dev The ERC20 `transferFrom` has failed.
     error TransferFromFailed();
 
-    /// @dev Sends `amount` of ERC20 `token` from the current contract to `to`.
-    /// Reverts upon failure.
+    /// @dev Sends `amount` of ERC20 `token` from the current contract to `to`. Reverts upon failure.
+    /// IMPORTANT: if amount == 0, bypass the transfer.
     function safeTransfer(address token, address to, uint256 amount) internal {
         if (amount != 0) {
             if (token != address(0)) {
