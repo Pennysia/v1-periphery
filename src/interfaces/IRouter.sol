@@ -2,6 +2,9 @@
 pragma solidity 0.8.30;
 
 interface IRouter {
+    /// @dev slippage error
+    error slippage();
+
     /// @notice Adds liquidity to a pair
     function addLiquidity(
         address token0,
