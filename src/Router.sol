@@ -3,10 +3,11 @@ pragma solidity 0.8.30;
 
 import {Deadline} from "./abstract/Deadline.sol";
 import {Payment} from "./abstract/Payment.sol";
+import {Multicall} from "./abstract/Multicall.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 import {IRouter} from "./interfaces/IRouter.sol";
 
-contract Router is IRouter, Deadline, Payment {
+contract Router is IRouter, Deadline, Payment, Multicall {
     constructor(address _market) Payment(_market) {}
 
     // ------------------ Liquidity Functions ------------------
@@ -18,13 +19,14 @@ contract Router is IRouter, Deadline, Payment {
         uint256 amount0,
         uint256 amount1,
         uint256 dividerX128,
+        uint256 fee, // min = 100(0.1%), max = 500(0.5%)
         uint256 minPriceX128, // slippage tolerance
         uint256 maxPriceX128, // slippage tolerance
         address to,
         uint256 deadline
     ) external payable override ensure(deadline) returns (uint256 liquidityLong, uint256 liquidityShort) {
         (, liquidityLong, liquidityShort) = IMarket(market)
-            .createLiquidity(to, token0, token1, amount0, amount1, dividerX128, minPriceX128, maxPriceX128);
+            .createLiquidity(to, token0, token1, amount0, amount1, dividerX128, fee, minPriceX128, maxPriceX128);
         refundNative(to);
     }
 
@@ -69,8 +71,14 @@ contract Router is IRouter, Deadline, Payment {
         ensure(deadline)
         returns (uint256 amountOut)
     {
-        amountOut = IMarket(market).swap(to, path, amountIn);
-        require(amountOut >= amountOutMinimum, slippage());
+        amountOut = IMarket(market).swap(to, path, amountIn, amountOutMinimum);
+        // require(amountOut >= amountOutMinimum, slippage());
         refundNative(to);
+    }
+
+    // ------------------ Fee Function ------------------
+
+    function voteFee(address token0, address token1, uint256 fee) external override {
+        IMarket(market).voteFee(token0, token1, msg.sender, fee);
     }
 }
