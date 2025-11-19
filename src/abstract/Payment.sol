@@ -11,7 +11,7 @@ abstract contract Payment is IPayment {
         market = _market;
     }
 
-    function requestToken(address from, address[] memory tokens, uint256[] memory paybackAmounts)
+    function requestToken(address payer, address[] memory tokens, uint256[] memory paybackAmounts)
         external
         payable
         override
@@ -21,7 +21,7 @@ abstract contract Payment is IPayment {
             if (tokens[i] == address(0)) {
                 TransferHelper.safeTransfer(address(0), market, paybackAmounts[i]);
             } else {
-                TransferHelper.safeTransferFrom(tokens[i], from, market, paybackAmounts[i]);
+                TransferHelper.safeTransferFrom(tokens[i], payer, market, paybackAmounts[i]);
             }
         }
     }
