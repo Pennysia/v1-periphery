@@ -5,6 +5,10 @@
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](#-license)
 [![CI](https://github.com/Pennysia/v1-periphery/actions/workflows/test.yml/badge.svg)](https://github.com/Pennysia/v1-periphery/actions/workflows/test.yml)
 
+## ⚠️ Repository Status & Safety Notice
+
+This repository is archived. The code was created solely to compete in the Sonic Hackathon in August 2026. It has **not** undergone any security audits and may contain serious bugs or vulnerabilities. **Do not use this code in production or to secure real funds.**
+
 > **The official periphery package for the [Pennysia AMM v1-core](https://github.com/Pennysia/v1-core): a robust, modular router and utility library for advanced swaps, liquidity management, and seamless integration with the core protocol.**
 
 ---
@@ -260,6 +264,7 @@ forge test -vvv
 
 ## 🔒 Security
 
+- **Archived project notice**: This repository is archived and unaudited. Do not use in production or to secure real funds.
 - **Slippage checks**: All liquidity and swap operations revert if minimums are not met.
 - **Deadline enforcement**: Prevents stale transactions.
 - **Safe transfers**: All token and ETH transfers use robust helper libraries.
